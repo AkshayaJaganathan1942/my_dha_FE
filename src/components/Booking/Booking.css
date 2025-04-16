@@ -1,0 +1,102 @@
+/* General Booking Container */
+.booking-container {
+  text-align: center;
+  padding-bottom: 59px;
+  margin: 0 auto;
+  width: 90%;
+  gap: 20px;
+}
+
+/* Heading Styles */
+.booking-heading {
+  margin-top: 120px;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  justify-items: center;
+}
+
+.booking-description {
+  font-size: 1.3rem;
+  padding-bottom: 2.5rem;
+}
+
+/* Car Listing Layout */
+.car-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Car Details Layout */
+.car-details {
+  display: flex;
+  justify-content: space-between; /* Text on left, button on right */
+  align-items: center; /* Center vertically */
+  width: 100%;
+  padding: 3px 5px;
+  padding-top: 20px;
+}
+
+.car-name {
+  color: #007bff;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+/* Button Styles */
+.book-now-button {
+  background-color: var(--primary-color, #177787);
+  color: white;
+  border: none;
+  padding: 10px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
+}
+
+.book-now-button:hover {
+  background-color: #693b90; /* Hover effect */
+}
+
+/* Car Distance Text */
+.car-distance {
+  font-size: 1.25rem;
+  font-weight: 600;
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+}
+
+/* Individual Car Card */
+.car-item {
+  border: 2px solid gray;
+  padding: 1rem;
+  border-radius: 12px;
+  position: relative;
+  transition: border-color 0.5s ease-in-out;
+  overflow: hidden; /* Ensures smooth animation within boundaries */
+}
+
+.car-item:hover {
+  border-color: #007bff;
+}
+
+/* Car Image Container */
+.car-image-container {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.car-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s ease-in-out; /* Hover animation */
+}
+
+.car-item:hover .car-image {
+  transform: translateX(25px); /* Moves the image horizontally */
+}

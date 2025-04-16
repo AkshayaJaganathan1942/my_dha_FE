@@ -1,0 +1,90 @@
+.header {
+  padding-bottom: 3rem;
+  text-align: center; /* Centers the heading horizontally */
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center; /* Ensures the text inside the heading is centered */
+  font-family: serif;
+  margin: 0 auto; /* Centers the heading block */
+}
+
+.cards-grid {
+  display: flex; /* Default layout is row (horizontal alignment) */
+  gap: 1rem; /* Space between cards */
+  flex-wrap: wrap; /* Allow wrapping for responsiveness */
+  justify-content: center; /* Center the cards horizontally */
+}
+
+.card {
+  display: flex; /* Use Flexbox */
+  flex-direction: column; /* Stack content vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  text-align: center; /* Ensure text is centered */
+  background-color: #eeeff1;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  flex: 1 1 calc(33.33% - 1rem); /* Three cards per row on larger screens */
+  max-width: 350px; /* Limit maximum width of each card */
+  height: 350px; /* Fixed height for consistent alignment */
+}
+
+.card:hover {
+  background: linear-gradient(
+    to right,
+    #177787,
+    #693b90
+  ); /* Custom theme colors */
+  /* background: linear-gradient(to left, #177787, #eeeff1);  ; */
+  color: white;
+}
+
+.icon-wrapper {
+  display: grid;
+  place-items: center;
+  margin-bottom: 1rem;
+}
+
+.card:hover .icon {
+  color: white;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.description {
+  margin: 1rem;
+}
+
+.link {
+  display: inline-block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f0a500;
+  padding: 0.5rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.card:hover .link {
+  color: black;
+}
+
+/* Media Query for Small Screens */
+@media (max-width: 768px) {
+  .cards-grid {
+    flex-direction: column; /* Stack cards vertically */
+    align-items: center; /* Center the cards vertically */
+  }
+
+  .card {
+    flex: 1 1 100%; /* Make each card take up the full width */
+    max-width: 100%; /* Remove width constraints */
+  }
+}

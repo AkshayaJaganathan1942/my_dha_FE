@@ -1,0 +1,167 @@
+/* Heading Section */
+.heading h1 {
+  margin-bottom: 35px;
+}
+.heading h1 span {
+  background: linear-gradient(
+    to right,
+    #177787,
+    #693b90
+  ); /* Custom theme colors */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Paper Styling */
+/* Booking Page Card Styles */
+.booking-container .MuiPaper-root {
+  background-color: #eeeff1; /* Subtle light pastel color */
+  border-radius: 0.75rem; /* Match the card's roundness */
+  padding: 2.5rem; /* Consistent padding */
+  box-shadow: 3 6px 12px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  width: 45rem; /* Adjust width */
+  height: auto; /* Allow dynamic height */
+  margin: 0 auto; /* Center alignment */
+}
+
+/* Form Element Styling */
+.MuiTextField-root {
+  font-family: "Arial", sans-serif; /* Consistent font styling */
+}
+
+.form-fields .MuiTextField-root {
+  margin-bottom: 1rem; /* Adds space between fields */
+}
+
+/* Dialog Styling */
+.dialog-container {
+  padding: 10px;
+}
+
+.dialog-title {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+}
+
+.dialog-content {
+  margin-top: 20px;
+}
+.dialog-box {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.dialog-box:hover {
+  background-color: rgba(
+    207,
+    208,
+    998,
+    0.732
+  ); /* Subtle background color change on hover */
+  transform: scale(1.1); /* Slight enlargement for the entire option */
+}
+
+.dialog-box-img {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  transition: transform 0.3s ease-in-out; /* Add transition to the image */
+}
+
+.dialog-box:hover .dialog-box-img {
+  transform: scale(1.1); /* Enlarge the image slightly on hover */
+}
+
+.cancel-button {
+  background-color: transparent; /* Transparent background */
+  border: 2px solid var(--nav-btn); /* Outlined border color */
+  color: var(--nav-btn); /* Text color matching the border */
+}
+
+.cancel-button:hover {
+  border-color: black; /* Change border color on hover */
+  background-color: rgba(207, 208, 998, 7.732); /* Light background color */
+  color: black; /* Text color changes to black */
+}
+
+.booking-paper {
+  background: "linear-gradient(to right, #eeeff1, #eeeff1)";
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  width: 35rem;
+  margin: 0 auto;
+}
+
+.radio-box {
+  margin: 10px 0;
+}
+
+.radio-item {
+  margin-right: 15px;
+}
+
+.pickup-drop-box,
+.date-time-box {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.search-button {
+  border-radius: 5px;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  background-color: #177787;
+  color: white;
+  transition: color 0.3s ease-in-out;
+  margin-top: 25px;
+  border: none;
+  cursor: pointer;
+}
+.search-button:hover{
+  background-color: #693b90;
+}
+
+.vehicle-trip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px; /* Adjust spacing as needed */
+}
+
+.change-selection-button {
+  text-decoration: underline;
+  color: #177787;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+}
+
+.change-selection-button:hover {
+  color: #693b90;
+}
+.radio-box {
+  display: flex; /* Ensure the container uses flex layout */
+  justify-content: flex-start; /* Align items completely to the left */
+  margin: 10px 0;
+}
+
+.radio-group-left {
+  display: flex;
+  flex-direction: column; /* Stack the radio buttons vertically */
+  align-items: flex-start; /* Align all radio buttons to the left */
+  width: 100%; /* Ensure it takes up the full width */
+}
+
+.radio-item .MuiFormControlLabel-root {
+  margin-left: 0; /* Remove left margin to ensure alignment */
+}

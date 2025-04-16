@@ -1,0 +1,125 @@
+/* General Styles */
+.hero-container {
+  display: flex;
+  flex-direction: column; /* Stacks items vertically for smaller screens */
+  align-items: center;
+  justify-content: center;
+  padding: 10px; /* Adds some breathing room */
+  max-height: fit-content;
+  padding-top: 6rem; /* Space above the content */
+  padding-bottom: 8rem; /* Space below the content */
+}
+
+.hero-wrapper {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+@media (min-width: 640px) {
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.hero-image-wrapper {
+  display: flex; /* Use Flexbox for centering */
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  order: 1; /* Keeps order for smaller screens */
+  width: 100%; /* Ensures the wrapper occupies full width */
+}
+
+@media (min-width: 640px) {
+  .hero-image-wrapper {
+    order: 2;
+  }
+}
+
+.hero-image {
+  max-height: 600px;
+  max-width: 100%; /* Ensures the image scales within its container */
+  object-fit: contain; /* Maintains aspect ratio */
+  transform: scale(1.25); /* Optional scaling */
+  filter: drop-shadow(2px 20px 6px rgba(0, 0, 0, 0.5));
+}
+
+/* Text Section */
+.hero-text {
+  order: 2;
+  padding-right: 0;
+}
+
+.hero-text h3 {
+  margin-bottom: 20px; /* Adds space below the heading */
+}
+
+.hero-text p {
+  margin-bottom: 15px; /* Adds space between paragraphs */
+}
+
+@media (min-width: 640px) {
+  .hero-text {
+    order: 1;
+    padding-right: 32px;
+  }
+}
+
+.hero-tagline {
+  font-size: 1.5rem;
+  font-family: "Georgia", serif;
+  color: var(--primary-color, #177787);
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 600;
+  font-family: "Georgia", serif;
+}
+
+@media (min-width: 1024px) {
+  .hero-title {
+    font-size: 4rem;
+  }
+}
+
+.hero-description {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Button */
+.hero-button {
+  padding: 10px 24px;
+  border-radius: 8px;
+  background-color: var(--primary-color, #177787);
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.5s ease;
+  margin-top: 25px;
+  border: none;
+}
+
+.hero-button:hover {
+  background-color: #693b90;
+  cursor: pointer;
+}
+
+/* Themes */
+.dark-theme {
+  background-color: black;
+  color: white;
+}
+
+.light-theme {
+  background-color: white;
+  color: black;
+}
