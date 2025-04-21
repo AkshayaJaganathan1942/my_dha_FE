@@ -2,24 +2,27 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import AOS from "aos";
 import "aos/dist/aos.css";
-import carImg1 from "../../assets/car_sample.png";
-import carImg2 from "../../assets/Etios.jpg";
+import carImg2 from "../../assets/car_sample.png";
+import carImg1 from "../../assets/INNOVA.png";
+import ttImg1 from "../../assets/TRAVELLER.png";
+import busImg1 from "../../assets/EICHER.png";
+
 import "./Booking.css";
 
 const carList = [
   {
     name: "Car",
-    image: carImg2,
+    image: carImg1,
     aosDelay: "0",
   },
   {
     name: "Tempo Traveller",
-    image: carImg1,
+    image: ttImg1,
     aosDelay: "500",
   },
   {
     name: "Bus",
-    image: carImg1,
+    image: busImg1,
     aosDelay: "1000",
   },
 ];
