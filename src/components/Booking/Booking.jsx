@@ -27,7 +27,7 @@ const carList = [
   },
 ];
 
-const Booking = () => {
+const Booking = ({ setLoading }) => {
   const navigate = useNavigate(); // Initialize useNavigate
 
   useEffect(() => {
@@ -43,8 +43,13 @@ const Booking = () => {
   }, []);
 
   const handleBookNow = (vehicle) => {
-    navigate("/page-booking", { state: { vehicle } }); // Navigate and pass vehicle data
+    setLoading(true); // Show loading spinner
+    setTimeout(() => {
+      setLoading(false); // Hide spinner after navigation
+      navigate("/page-booking", { state: { vehicle } }); // Navigate and pass vehicle data
+    }, 1500); // Simulated delay for loading
   };
+
 
   return (
     <div className="booking-container">

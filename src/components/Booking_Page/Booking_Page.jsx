@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useRef, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Radio from "@mui/material/Radio";
@@ -12,7 +11,6 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  TextField,
   Typography,
 } from "@mui/material";
 import { useLocation } from "react-router-dom";
@@ -33,7 +31,7 @@ const vehicleOptions = [
   { name: "Bus", image: busImg1 },
 ];
 
-const Booking_Page = () => {
+const Booking_Page = ({ setLoading }) => {
   const location = useLocation();
   const [vehicle, setVehicle] = useState(location.state?.vehicle || "Car");
   const [tripType, setTripType] = useState("");
@@ -46,6 +44,14 @@ const Booking_Page = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [returnDate, setReturnDate] = useState("");
   const [showVehicles, setShowVehicles] = useState(false); // State to show available vehicles
+  const vehicleListRef = useRef(null);
+  const [distance, setDistance] = useState("");
+
+  useEffect(() => {
+    if (showVehicles && vehicleListRef.current) {
+      vehicleListRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [showVehicles]);
 
   const handleDialogOpen = () => {
     setDialogOpen(true);
@@ -60,21 +66,59 @@ const Booking_Page = () => {
     handleDialogClose();
   };
 
+  const validateForm = () => {
+    let emptyFields = [];
+    let invalidFields = [];
+
+    if (!vehicle) emptyFields.push("Vehicle");
+    if (!tripType) emptyFields.push("Trip Type");
+    if (!pickupLocation?.trim()) emptyFields.push("Pickup Location");
+    if (!dropLocation?.trim()) emptyFields.push("Drop Location");
+    if (!pickupDate) emptyFields.push("Pickup Date");
+    if (!pickupTime) emptyFields.push("Pickup Time");
+    if (tripType === "Round trip" && !returnDate)
+      emptyFields.push("Return Date");
+    if (tripType === "Hourly Rental" && !rentalDuration) {
+      emptyFields.push("Rental Duration");
+    }
+    if (!distance) emptyFields.push("Distance (Calculate it)");
+
+    // Show alert for empty or invalid fields
+    if (emptyFields.length > 0) {
+      alert(`\n${emptyFields.join(", ")} fields are empty!!!`);
+      return false; // Validation failed
+    }
+
+    return true; // Validation succeeded
+  };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    setShowVehicles(true); // Trigger VehicleList rendering
-    const formData = {
-      vehicle,
-      tripType,
-      pickupLocation,
-      dropLocation,
-      pickupDate,
-      pickupTime,
-      returnDate,
-      rentalDuration,
-      localType,
-    };
-    console.log("Form Data:", formData);
+    if (!validateForm()) {
+      return; // Stop form submission if validation fails
+    }
+  
+    setLoading(true); // Trigger loading spinner and blur effect
+    setTimeout(() => {
+      const formData = {
+        vehicle,
+        tripType,
+        pickupLocation,
+        dropLocation,
+        pickupDate,
+        pickupTime,
+        returnDate,
+        rentalDuration,
+        distance,
+      };
+  
+      console.log("Form Data:", formData);
+  
+      setShowVehicles(true); // Trigger VehicleList rendering
+      vehicleListRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to vehicle list
+  
+      setLoading(false); // Stop loading
+    }, 1500); // Simulate loading time (adjust as necessary)
   };
 
   return (
@@ -193,6 +237,8 @@ const Booking_Page = () => {
                   setReturnDate={setReturnDate}
                   rentalDuration={rentalDuration}
                   setRentalDuration={setRentalDuration}
+                  distance={distance}
+                  setDistance={setDistance}
                 />
               )}
               {vehicle === "Tempo Traveller" && (
@@ -230,7 +276,6 @@ const Booking_Page = () => {
                   setReturnDate={setReturnDate}
                 />
               )}
-              
             </Box>
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <button
@@ -264,11 +309,15 @@ const Booking_Page = () => {
             </Box>
           </Paper>
         </form>
-        <VehicleList
-          selectedCategory={vehicle} // Pass selected vehicle category
-          tripType={tripType} // Pass selected trip type
-          showVehicles={showVehicles} // Control visibility based on state
-        />
+        <div ref={vehicleListRef}>
+          {showVehicles && (
+            <VehicleList
+              selectedCategory="Car"
+              tripType="One-way"
+              showVehicles={showVehicles}
+            />
+          )}
+        </div>
       </div>
     </Box>
   );

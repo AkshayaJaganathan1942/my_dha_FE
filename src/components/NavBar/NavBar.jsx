@@ -18,7 +18,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import "remixicon/fonts/remixicon.css";
 import { useAuth } from "../../AuthContext";
 
-export const Navbar = () => {
+export const Navbar = ({ setLoading }) => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const drawerRef = useRef(null);
   const linksRef = useRef([]);
@@ -190,20 +190,35 @@ export const Navbar = () => {
               </div>
             ) : (
               <>
-                <Link
-                  to="/login?type=login"
-                  onClick={() => setMobileDrawerOpen(false)}
-                >
-                  <Button className="login-button" variant="outlined">
-                    Login
-                  </Button>
-                </Link>
-                <Link
-                  to="/login?type=signup"
-                  onClick={() => setMobileDrawerOpen(false)}
-                >
-                  <button className="signup-button">Sign Up</button>
-                </Link>
+                        <Link
+          to="/login?type=login"
+          onClick={(e) => {
+            e.preventDefault();
+            setLoading(true); // Show the loading spinner
+            setTimeout(() => {
+              setLoading(false); // Hide spinner after navigation
+              navigate("/login?type=login");
+            }, 1500); // Simulate a delay for loading
+          }}
+        >
+          <Button className="login-button" variant="outlined">
+            Login
+          </Button>
+        </Link>
+
+        <Link
+          to="/login?type=signup"
+          onClick={(e) => {
+            e.preventDefault();
+            setLoading(true);
+            setTimeout(() => {
+              setLoading(false);
+              navigate("/login?type=signup");
+            }, 1500);
+          }}
+        >
+          <button className="signup-button">Sign Up</button>
+        </Link>
               </>
             )}
           </div>

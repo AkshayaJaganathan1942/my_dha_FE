@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, TextField, List, Button, ListItem } from "@mui/material";
+import { Box, TextField, List, Button, ListItem,  CircularProgress } from "@mui/material";
 import axios from "axios";
 
 const CarFields = ({
@@ -18,6 +18,7 @@ const CarFields = ({
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [dropSuggestions, setDropSuggestions] = useState([]);
   const [distance, setDistance] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSearchPickup = async (query) => {
     setPickupLocation(query);
@@ -42,11 +43,11 @@ const CarFields = ({
       setDropSuggestions([]);
     }
   };
-
   const calculateDistance = async () => {
     const apiKey = "5b3ce3597851110001cf62489136814f45114359bf2b04307e11f67f"; // Replace with your API key
     try {
       if (pickupLocation && dropLocation) {
+        setLoading(true); // Show spinner
         const responsePickup = await axios.get(
           `https://nominatim.openstreetmap.org/search?format=json&q=${pickupLocation}&addressdetails=1&countrycodes=IN`
         );
@@ -82,11 +83,39 @@ const CarFields = ({
       }
     } catch (error) {
       console.error("Error calculating distance:", error);
+    } finally {
+      setLoading(false); // Hide spinner
     }
   };
 
   return (
     <Box>
+       {loading && (
+              <div
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  width: "100vw",
+                  height: "100vh",
+                  backgroundColor: "rgba(0, 0, 0, 0.6)", // Dark background
+                  backdropFilter: "blur(2px)", // Blur effect
+                  zIndex: 9998, // Behind the spinner
+                }}
+              >
+                <div
+                  style={{
+                    position: "fixed",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 9999, // Spinner on top
+                  }}
+                >
+                  <CircularProgress color="secondary" />
+                </div>
+              </div>
+            )}
       {tripType === "One-way" && (
         <>
           <TextField
@@ -94,7 +123,6 @@ const CarFields = ({
             value={pickupLocation}
             onChange={(e) => handleSearchPickup(e.target.value)}
             fullWidth
-            required
           />
           <List>
             {pickupSuggestions.map((suggestion, index) => (
@@ -116,7 +144,6 @@ const CarFields = ({
             value={dropLocation}
             onChange={(e) => handleSearchDrop(e.target.value)}
             fullWidth
-            required
           />
           <List>
             {dropSuggestions.map((suggestion, index) => (
@@ -164,16 +191,20 @@ const CarFields = ({
               onChange={(e) => setPickupDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
               fullWidth
-              required
+              inputProps={{
+                min: new Date().toISOString().split("T")[0], // Set minimum date to today's date
+              }}
+            
             />
             <TextField
               label="Pickup Time"
               type="time"
               value={pickupTime}
-              onChange={(e) => setPickupTime(e.target.value)}
-              InputLabelProps={{ shrink: true }}
+              onChange={(e) => {
+                setPickupTime(e.target.value); // Update state with the selected time
+                e.target.blur(); // Close the dropdown programmatically
+              }}              InputLabelProps={{ shrink: true }}
               fullWidth
-              required
             />
           </Box>
         </>
@@ -185,7 +216,6 @@ const CarFields = ({
             value={pickupLocation}
             onChange={(e) => handleSearchPickup(e.target.value)}
             fullWidth
-            required
           />
           <List>
             {pickupSuggestions.map((suggestion, index) => (
@@ -207,7 +237,6 @@ const CarFields = ({
             value={dropLocation}
             onChange={(e) => handleSearchDrop(e.target.value)}
             fullWidth
-            required
           />
           <List>
             {dropSuggestions.map((suggestion, index) => (
@@ -255,16 +284,20 @@ const CarFields = ({
               onChange={(e) => setPickupDate(e.target.value)}
               InputLabelProps={{ shrink: true }}
               fullWidth
-              required
+              inputProps={{
+                min: new Date().toISOString().split("T")[0], // Set minimum date to today's date
+              }}
+            
             />
             <TextField
               label="Pickup Time"
               type="time"
               value={pickupTime}
-              onChange={(e) => setPickupTime(e.target.value)}
-              InputLabelProps={{ shrink: true }}
+              onChange={(e) => {
+                setPickupTime(e.target.value); // Update state with the selected time
+                e.target.blur(); // Close the dropdown programmatically
+              }}              InputLabelProps={{ shrink: true }}
               fullWidth
-              required
             />
           </Box>
           <TextField
@@ -274,7 +307,10 @@ const CarFields = ({
             onChange={(e) => setReturnDate(e.target.value)}
             InputLabelProps={{ shrink: true }}
             fullWidth
-            required
+            inputProps={{
+              min: pickupDate || new Date().toISOString().split("T")[0], // Restrict to dates after Pickup Date
+            }}          
+          
           />
         </>
       )}
