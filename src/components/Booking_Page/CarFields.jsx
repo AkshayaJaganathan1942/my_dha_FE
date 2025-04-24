@@ -112,7 +112,7 @@ const CarFields = ({
             height: "100vh",
             backgroundColor: "rgba(0, 0, 0, 0.6)", // Dark background
             backdropFilter: "blur(2px)", // Blur effect
-            zIndex: 9998, // Behind the spinner
+            zIndex: 9999, // Behind the spinner
           }}
         >
           <div
@@ -128,7 +128,7 @@ const CarFields = ({
           </div>
         </div>
       )}
-      {tripType === "One-way" && (
+      {tripType === "oneway" && (
         <>
           <TextField
             label="Pickup Location"
@@ -222,7 +222,7 @@ const CarFields = ({
         </>
       )}
 
-      {tripType === "Round trip" && (
+      {tripType === "roundtrip" && (
         <>
           <TextField
             label="Pickup Location"
@@ -327,7 +327,7 @@ const CarFields = ({
         </>
       )}
 
-      {tripType === "Hourly Rental" && (
+      {tripType === "rental" && (
         <>
           <TextField
             label="Pickup Location"
@@ -342,27 +342,6 @@ const CarFields = ({
                 onClick={() => {
                   setPickupLocation(suggestion.display_name);
                   setPickupSuggestions([]);
-                }}
-                style={{ cursor: "pointer" }}
-              >
-                {suggestion.display_name}
-              </ListItem>
-            ))}
-          </List>
-
-          <TextField
-            label="Drop Location"
-            value={dropLocation}
-            onChange={(e) => handleSearchDrop(e.target.value)}
-            fullWidth
-          />
-          <List>
-            {dropSuggestions.map((suggestion, index) => (
-              <ListItem
-                key={index}
-                onClick={() => {
-                  setDropLocation(suggestion.display_name);
-                  setDropSuggestions([]);
                 }}
                 style={{ cursor: "pointer" }}
               >

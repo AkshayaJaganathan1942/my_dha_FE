@@ -97,7 +97,7 @@ const Booking_Page = ({ setLoading }) => {
     if (!validateForm()) {
       return; // Stop form submission if validation fails
     }
-  
+
     setLoading(true); // Trigger loading spinner and blur effect
     setTimeout(() => {
       const formData = {
@@ -111,12 +111,12 @@ const Booking_Page = ({ setLoading }) => {
         rentalDuration,
         distance,
       };
-  
+
       console.log("Form Data:", formData);
-  
+
       setShowVehicles(true); // Trigger VehicleList rendering
       vehicleListRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to vehicle list
-  
+
       setLoading(false); // Stop loading
     }, 1500); // Simulate loading time (adjust as necessary)
   };
@@ -198,20 +198,20 @@ const Booking_Page = ({ setLoading }) => {
                     row
                   >
                     <FormControlLabel
-                      value="One-way"
+                      value="oneway"
                       control={<Radio />}
                       label="One-way"
                       className="radio-item"
                     />
                     <FormControlLabel
-                      value="Round trip"
+                      value="roundtrip"
                       control={<Radio />}
                       label="Round trip"
                       className="radio-item"
                     />
                     {vehicle !== "Tempo Traveller" && vehicle !== "Bus" && (
                       <FormControlLabel
-                        value="Hourly Rental"
+                        value="rental"
                         control={<Radio />}
                         label="Hourly Rental"
                         className="radio-item"
@@ -310,11 +310,19 @@ const Booking_Page = ({ setLoading }) => {
           </Paper>
         </form>
         <div ref={vehicleListRef}>
+          {console.log("Show Vehicles:", showVehicles)}{" "}
+          {/* Log the toggle state */}
           {showVehicles && (
             <VehicleList
-              selectedCategory="Car"
-              tripType="One-way"
-              showVehicles={showVehicles}
+              selectedCategory={vehicle}
+              tripType={tripType}
+              pickupLocation={pickupLocation}
+              dropLocation={dropLocation}
+              pickupDate={pickupDate}
+              pickupTime={pickupTime}
+              returnDate={returnDate}
+              distance={distance}
+              rentalDuration={rentalDuration}
             />
           )}
         </div>

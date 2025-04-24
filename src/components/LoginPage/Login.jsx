@@ -1,95 +1,142 @@
 import React, { useRef, useState, useEffect } from "react";
 import "./Login.css";
-import { useNavigate } from 'react-router-dom';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
+import { USER_ENDPOINT } from "../../Api";
 
 const Login = () => {
   const { setAuth } = useAuth();
   const wrapperRef = useRef(null);
-  const [signupData, setSignupData] = useState(
-    JSON.parse(localStorage.getItem("signupData")) || []
-  );
-
   const [searchParams, setSearchParams] = useSearchParams();
-  const type = searchParams.get('type') || 'login';
+  const type = searchParams.get("type") || "login";
   const navigate = useNavigate();
-  
+
   useEffect(() => {
-    if (type === 'login') {
-      wrapperRef.current.classList.add('animated-signup');
-      wrapperRef.current.classList.remove('animated-signin');
+    if (type === "login") {
+      wrapperRef.current.classList.add("animated-signup");
+      wrapperRef.current.classList.remove("animated-signin");
     } else {
-      wrapperRef.current.classList.add('animated-signin');
-      wrapperRef.current.classList.remove('animated-signup');
+      wrapperRef.current.classList.add("animated-signin");
+      wrapperRef.current.classList.remove("animated-signup");
     }
   }, [type]);
-  
 
-  
   const handleSignUpClick = () => {
-    
-    wrapperRef.current.classList.add("animated-signin"); // Add the animation class for sign-up
-    wrapperRef.current.classList.remove("animated-signup"); // Remove the opposite class
-  };
-  
-  const handleSignInClick = () => {
-    wrapperRef.current.classList.add("animated-signup"); // Add the animation class for login
-    wrapperRef.current.classList.remove("animated-signin"); // Remove the opposite class
+    wrapperRef.current.classList.add("animated-signin"); // Switch to sign-up animation
+    wrapperRef.current.classList.remove("animated-signup");
   };
 
-  const handleSignupSubmit = (e) => {
+  const handleSignInClick = () => {
+    wrapperRef.current.classList.add("animated-signup"); // Switch to login animation
+    wrapperRef.current.classList.remove("animated-signin");
+  };
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
     const username = e.target.username.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
     const confirmPassword = e.target.confirmPassword.value;
-
+  
+    // Validate email format
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-      alert("Invalid email format!");
+      alert("Invalid email format! Please enter a valid email.");
       return;
     }
   
-
-    if (password === confirmPassword) {
-      const existingUser = signupData.find((user) => user.username === username);
-      if (!existingUser) {
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      alert("Passwords don't match! Please try again.");
+      return;
+    }
+  
+    try {
+      // Fetch existing users from the server
+      const response = await fetch(USER_ENDPOINT, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (response.ok) {
+        const users = await response.json(); // Parse the response as JSON
+  
+        // Check if username or email already exists
+        const usernameExists = users.some((user) => user.username === username);
+        const emailExists = users.some((user) => user.email === email);
+  
+        if (usernameExists) {
+          alert("The username is already taken. Please choose a different one.");
+          return;
+        }
+  
+        if (emailExists) {
+          alert("The email is already registered. Please use a different email.");
+          return;
+        }
+  
+        // If no matches, proceed to create a new user
         const newUser = { username, email, password };
-        setSignupData([...signupData, newUser]);
-        localStorage.setItem(
-          "signupData",
-          JSON.stringify([...signupData, newUser])
-        );
-        alert("Signup successful!");
-        e.target.reset();
-        handleSignInClick();
+  
+        const signupResponse = await fetch(USER_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newUser),
+        });
+  
+        if (signupResponse.ok) {
+          alert("Signup successful! Welcome to the platform!");
+          e.target.reset();
+          handleSignInClick(); // Switch to the login view
+        } else {
+          alert("Failed to sign up! Please try again later.");
+        }
       } else {
-        alert("Username already exists!");
+        alert("Failed to fetch existing users! Please try again later.");
       }
-    } else {
-      alert("Passwords don't match!");
+    } catch (error) {
+      console.error("Error during signup:", error);
+      alert("An error occurred while signing up! Please check your internet connection.");
     }
   };
-
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     const username = e.target.username.value;
     const password = e.target.password.value;
-  
-    const existingUser = signupData.find(
-      (user) => user.username === username && user.password === password
-    );
-  
-    if (existingUser) {
-      alert("Login successful!");
-      setAuth({ username }); // Save username in auth context
-      navigate('/'); // Redirect to the home page
-    } else {
-      alert("Invalid username or password!");
+
+    try {
+      const response = await fetch(USER_ENDPOINT, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const users = await response.json(); // Fetch users from the server
+        const existingUser = users.find(
+          (user) => user.username === username && user.password === password
+        );
+
+        if (existingUser) {
+          alert("Login successful!");
+          setAuth({ username: existingUser.username }); // Save username in auth context
+          navigate("/"); // Redirect to the home page
+        } else {
+          alert("Invalid username or password!");
+        }
+      } else {
+        alert("Failed to retrieve users!");
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+      alert("An error occurred while logging in!");
     }
   };
-  
 
   return (
     <div ref={wrapperRef} className="wrapper" id="login">
@@ -146,7 +193,7 @@ const Login = () => {
             <a href="#">Forgot Password?</a>
           </div>
           <button type="submit" className="btn">
-          Login
+            Login
           </button>
           <div className="link">
             <p>

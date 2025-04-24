@@ -116,7 +116,7 @@ const CarFields = ({
                 </div>
               </div>
             )}
-      {tripType === "One-way" && (
+      {tripType === "oneway" && (
         <>
           <TextField
             label="Pickup Location"
@@ -209,7 +209,7 @@ const CarFields = ({
           </Box>
         </>
       )}
-      {tripType === "Round trip" && (
+      {tripType === "roundtrip" && (
         <>
           <TextField
             label="Pickup Location"
