@@ -11,7 +11,8 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-
+import { useAuth } from "../../AuthContext";
+import { useNavigate } from "react-router-dom";
 // Import vehicle images
 import carImg1 from "../../assets/INNOVA.png";
 import carImg2 from "../../assets/ETIOS.png";
@@ -53,11 +54,16 @@ const VehicleList = ({
   distance,
   rentalDuration,
 }) => {
+  const { auth } = useAuth(); // Check authentication state
+  const navigate = useNavigate();
   const [vehicles, setVehicles] = useState([]);
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
-
+  const selectedKM = rentalDuration
+    ? rentalDuration.match(/\d+(?= km)/)?.[0]
+    : "0";
   useEffect(() => {
     const fetchVehicles = async () => {
       const response = await fetch(VEHICLE_ENDPOINT);
@@ -65,7 +71,7 @@ const VehicleList = ({
       console.log("Fetched Vehicles:", data); // Log fetched vehicles
       setVehicles(data);
     };
-  
+
     const fetchVehicleTypes = async () => {
       try {
         const response = await fetch(VEHICLETYPE_ENDPOINT);
@@ -76,23 +82,20 @@ const VehicleList = ({
         console.error("Error fetching vehicle types:", error);
       }
     };
-  
+
     fetchVehicles();
     fetchVehicleTypes();
   }, []);
 
-
   const filteredVehicles = vehicles.filter((vehicle) => {
-    const vehicleType = vehicleTypes.find((type) => type.name === selectedCategory);
+    const vehicleType = vehicleTypes.find(
+      (type) => type.typename === selectedCategory
+    ); // Use 'typename' here
+    console.log("Selected Category:", selectedCategory);
     console.log("Matching Vehicle Type:", vehicleType); // Log matching vehicle type
-    return vehicleType && vehicle.type === vehicleType.id;
+    return vehicleType && vehicle.type === vehicleType.id; // Match against the correct ID
   });
   console.log("Filtered Vehicles:", filteredVehicles); // Log filtered vehicles
-
-  const handleBookingDialog = (vehicle) => {
-    setSelectedVehicle(vehicle);
-    setDialogOpen(true);
-  };
 
   const postBookingData = async (bookingData, tripType) => {
     let endpoint = "";
@@ -129,6 +132,56 @@ const VehicleList = ({
       alert("Failed to confirm booking. Please try again.");
     }
   };
+
+  const handleBookingDialog = (vehicle) => {
+    const matchedVehicleType = vehicleTypes.find(
+      (type) => type.typename === selectedCategory
+    );
+    const vehicleTypeId = matchedVehicleType ? matchedVehicleType.id : null; // Extract pk id
+
+    console.log("Vehicle Type ID:", vehicleTypeId); // Log the extracted id
+
+    setSelectedVehicle({ ...vehicle, vehicleTypeId }); // Store vehicle along with its type ID
+    setDialogOpen(true);
+  };
+
+  const handleConfirmClick = () => {
+    if (!auth) {
+      setOpenDialog(true); // 🔹 Show login prompt if user isn’t logged in
+      return;
+    }
+
+    // 🔹 Proceed with booking
+    let totalFare = 0;
+    if (tripType === "roundtrip") {
+      totalFare = (distance * 2 * parseFloat(selectedVehicle?.price_per_km)).toFixed(2);
+    } else if (tripType === "rental") {
+      const selectedKM = parseInt(rentalDuration.match(/\d+(?= km)/)[0], 10);
+      totalFare = (selectedKM * parseFloat(selectedVehicle?.price_per_km) + 500).toFixed(2);
+    } else {totalFare = (distance * parseFloat(selectedVehicle?.price_per_km)).toFixed(2);
+    }
+
+    const bookingData = {
+      vehicleType: selectedVehicle.vehicleTypeId,
+      pickupLocation,
+      pickupDate,
+      pickupTime,
+      tripType,
+      distance,
+      totalFare,
+    };
+
+    if (tripType === "roundtrip") bookingData.returnDate = returnDate;
+    if (tripType === "rental") bookingData.rentalDuration = selectedKM;
+    else {
+      bookingData.dropLocation = dropLocation;
+      bookingData.distance = distance;
+    }
+
+    postBookingData(bookingData, tripType);
+    setDialogOpen(false); // 🔹 Close dialog after booking
+  };
+
 
   return (
     <section className="available-vehicles-section">
@@ -199,6 +252,13 @@ const VehicleList = ({
           </center>
         </DialogTitle>
         <DialogContent id="vehicle-details-dialog-description">
+          <center>
+            <img
+              src={imageMapping[selectedVehicle?.name]}
+              alt={selectedVehicle?.name}
+              style={{ width: "100%", maxWidth: "300px", borderRadius: "8px" }}
+            />
+          </center>
           <Typography variant="h6">
             <b>Vehicle Details:</b>
           </Typography>
@@ -216,51 +276,117 @@ const VehicleList = ({
           </Typography>
           <Typography>Trip Type: {tripType}</Typography>
           <Typography>Pickup Location: {pickupLocation}</Typography>
-          <Typography>Drop Location: {dropLocation}</Typography>
+          {tripType !== "rental" && (
+            <Typography>Drop Location: {dropLocation}</Typography>
+          )}{" "}
           <Typography>Pickup Date: {pickupDate}</Typography>
           <Typography>Pickup Time: {pickupTime}</Typography>
-          <Typography>Distance: {distance} kms</Typography>
-          <b>
-            <Typography>
-              Total Cost: ₹
-              {distance * parseFloat(selectedVehicle?.price_per_km)}
-            </Typography>
-          </b>
+          {tripType === "roundtrip" && (
+            <>
+              <Typography>Return Date: {returnDate}</Typography>
+              <Typography>Total Distance: {distance * 2} kms</Typography>{" "}
+              {/* Double the distance */}
+              <br></br>
+              <Typography>
+                <b>
+                  Total Cost: ₹
+                  {(
+                    distance *
+                    2 *
+                    parseFloat(selectedVehicle?.price_per_km)
+                  ).toFixed(2)}
+                </b>{" "}
+                (Other charges included)
+              </Typography>
+            </>
+          )}
+          {tripType === "rental" && (
+            <>
+              <Typography>Rental Duration: {rentalDuration}</Typography>
+              <br></br>
+              <Typography>
+                <b>
+                  Total Cost: ₹
+                  {(
+                    selectedKM * parseFloat(selectedVehicle?.price_per_km) +
+                    500
+                  ).toFixed(2)}
+                </b>{" "}
+                (Other charges included)
+              </Typography>
+            </>
+          )}
+          {tripType === "oneway" && (
+            <>
+              <Typography>Distance: {distance} kms</Typography>
+              <br></br>
+              <Typography>
+                <b>
+                  Total Cost: ₹
+                  {(
+                    distance * parseFloat(selectedVehicle?.price_per_km)
+                  ).toFixed(2)}
+                </b>{" "}
+                (Other charges included)
+              </Typography>
+            </>
+          )}
         </DialogContent>
         <DialogActions>
+         
           <Button
-            onClick={() => {
-              // Construct the booking data based on tripType
-              const bookingData = {
-                pickupLocation,
-                dropLocation,
-                distance: parseFloat(distance),
-                pickupDate,
-                pickupTime,
-                tripType,
-                vehicleType: selectedVehicle?.id, // Use the vehicle ID
-              };
-
-              // Add specific fields for Round Trip and Hourly Rental
-              if (tripType === "roundtrip") {
-                bookingData.returnDate = returnDate;
-                bookingData.totalFare =
-                  distance * parseFloat(selectedVehicle?.price_per_km) * 2; // Example calculation
-              } else if (tripType === "oneway") {
-                bookingData.totalFare =
-                  distance * parseFloat(selectedVehicle?.price_per_km); // Example calculation
-              } else if (tripType === "rental") {
-                bookingData.rentalDuration = rentalDuration;
-              }
-
-              // Call the posting function
-              postBookingData(bookingData, tripType);
-
-              // Close the dialog
-              setDialogOpen(false);
-            }}
             variant="contained"
             color="primary"
+            onClick={handleConfirmClick}
+              
+
+            //   let totalFare = 0;
+
+            //   if (tripType === "roundtrip") {
+            //     totalFare = (
+            //       distance *
+            //       2 *
+            //       parseFloat(selectedVehicle?.price_per_km)
+            //     ).toFixed(2);
+            //   } else if (tripType === "rental") {
+            //     const selectedKM = rentalDuration.match(/\d+(?= km)/)[0]; // Extract KM value
+            //     totalFare = (
+            //       selectedKM * parseFloat(selectedVehicle?.price_per_km) +
+            //       500
+            //     ).toFixed(2);
+            //   } else {
+            //     totalFare = (
+            //       distance * parseFloat(selectedVehicle?.price_per_km)
+            //     ).toFixed(2);
+            //   }
+
+            //   const bookingData = {
+            //     vehicleType: selectedVehicle.vehicleTypeId,
+            //     pickupLocation,
+            //     pickupDate,
+            //     pickupTime,
+            //     tripType,
+            //     totalFare, // Send totalFare instead of total price
+            //   };
+
+            //   if (tripType === "roundtrip") {
+            //     bookingData.returnDate = returnDate;
+            //   }
+
+            //   if (tripType === "rental") {
+            //     bookingData.rentalDuration = selectedKM; // Send only the KM value (30, 40, 50, or 60)
+            //     bookingData.totalFare = (
+            //       selectedKM * parseFloat(selectedVehicle?.price_per_km) +
+            //       500
+            //     ).toFixed(2); // Add ₹500 driver beta charge
+            //   } else {
+            //     bookingData.dropLocation = dropLocation;
+            //     bookingData.distance = distance;
+            //   }
+
+            //   postBookingData(bookingData, tripType);
+            //   setDialogOpen(false);
+            // }}
           >
             Confirm
           </Button>
@@ -270,6 +396,17 @@ const VehicleList = ({
             color="secondary"
           >
             Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+        <DialogTitle>You should login before booking a vehicle!</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => setOpenDialog(false)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={() => navigate("/login")} color="primary">
+            Login
           </Button>
         </DialogActions>
       </Dialog>

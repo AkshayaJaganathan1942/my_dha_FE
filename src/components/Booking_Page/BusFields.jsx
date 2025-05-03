@@ -14,10 +14,11 @@ const BusFields = ({
   setDropLocation,
   returnDate,
   setReturnDate,
+  distance,
+  setDistance,
 }) => {
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [dropSuggestions, setDropSuggestions] = useState([]);
-  const [distance, setDistance] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSearchPickup = async (query) => {
@@ -271,6 +272,7 @@ const BusFields = ({
             <TextField
               label="Total Distance (km)"
               value={distance} // Bind the calculated distance to the TextField
+              onChange={(e) => setDistance(e.target.value)}
               InputProps={{
                 readOnly: true, // Make the TextField read-only
               }}

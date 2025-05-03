@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Box, TextField, List, Button, ListItem,  CircularProgress } from "@mui/material";
 import axios from "axios";
 
-const CarFields = ({
+const TempoTravellerFields = ({
   tripType,
   pickupDate,
   setPickupDate,
@@ -14,12 +14,12 @@ const CarFields = ({
   setDropLocation,
   returnDate,
   setReturnDate,
+  distance,
+  setDistance
 }) => {
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [dropSuggestions, setDropSuggestions] = useState([]);
-  const [distance, setDistance] = useState("");
-  const [loading, setLoading] = useState(false);
-
+ const [loading, setLoading] = useState(false);
   const handleSearchPickup = async (query) => {
     setPickupLocation(query);
     if (query.length > 2) {
@@ -270,6 +270,7 @@ const CarFields = ({
             <TextField
               label="Total Distance (km)"
               value={distance} // Bind the calculated distance to the TextField
+              onChange={(e) => setDistance(e.target.value)}
               InputProps={{
                 readOnly: true, // Make the TextField read-only
               }}
@@ -318,4 +319,4 @@ const CarFields = ({
   );
 };
 
-export default CarFields;
+export default TempoTravellerFields;

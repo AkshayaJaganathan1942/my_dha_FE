@@ -49,7 +49,9 @@ const Booking_Page = ({ setLoading }) => {
 
   useEffect(() => {
     if (showVehicles && vehicleListRef.current) {
-      vehicleListRef.current.scrollIntoView({ behavior: "smooth" });
+      setTimeout(() => {
+        vehicleListRef.current.scrollIntoView({ behavior: "smooth" });
+      }, 100); // Small delay ensures state update completes before scrolling
     }
   }, [showVehicles]);
 
@@ -63,32 +65,71 @@ const Booking_Page = ({ setLoading }) => {
 
   const handleVehicleSelect = (selectedVehicle) => {
     setVehicle(selectedVehicle);
+    setShowVehicles(false);
     handleDialogClose();
+  
+    if (selectedVehicle === "Tempo Traveller" || selectedVehicle === "Bus") {
+      setDistance(""); // Reset distance ONLY for these vehicle types
+    } else {
+      setDistance((prevDistance) => prevDistance || ""); // Preserve distance when switching between Cars
+    }
+  
   };
+  // const validateForm = () => {
+  //   let emptyFields = [];
+  //   let invalidFields = [];
+
+  //   if (!vehicle) emptyFields.push("Vehicle");
+  //   if (!tripType) emptyFields.push("Trip Type");
+  //   if (!pickupLocation?.trim()) emptyFields.push("Pickup Location");
+  //   if (!dropLocation?.trim()) emptyFields.push("Drop Location");
+  //   if (!pickupDate) emptyFields.push("Pickup Date");
+  //   if (!pickupTime) emptyFields.push("Pickup Time");
+  //   if (!returnDate) emptyFields.push("Return Date");
+  //   if (tripType === "Round trip" && !returnDate)
+  //     emptyFields.push("Return Date");
+  //   if (tripType === "Hourly Rental" && !rentalDuration) {
+  //     emptyFields.push("Rental Duration");
+  //   }
+  //   if (!distance) emptyFields.push("Distance (Calculate it)");
+
+  //   // Show alert for empty or invalid fields
+  //   if (emptyFields.length > 0) {
+  //     alert(`\n${emptyFields.join(", ")} fields are empty!!!`);
+  //     return false; // Validation failed
+  //   }
+
+  //   return true; // Validation succeeded
+  // };
 
   const validateForm = () => {
     let emptyFields = [];
-    let invalidFields = [];
-
+  
     if (!vehicle) emptyFields.push("Vehicle");
     if (!tripType) emptyFields.push("Trip Type");
     if (!pickupLocation?.trim()) emptyFields.push("Pickup Location");
-    if (!dropLocation?.trim()) emptyFields.push("Drop Location");
+    if (!dropLocation?.trim() && tripType !== "rental") emptyFields.push("Drop Location");
     if (!pickupDate) emptyFields.push("Pickup Date");
     if (!pickupTime) emptyFields.push("Pickup Time");
-    if (tripType === "Round trip" && !returnDate)
+  
+    // Only validate returnDate if tripType is roundtrip
+    if (tripType === "roundtrip" && !returnDate) {
       emptyFields.push("Return Date");
-    if (tripType === "Hourly Rental" && !rentalDuration) {
+    }
+  
+    // Only validate rentalDuration if tripType is rental
+    if (tripType === "rental" && !rentalDuration) {
       emptyFields.push("Rental Duration");
     }
-    if (!distance) emptyFields.push("Distance (Calculate it)");
-
-    // Show alert for empty or invalid fields
+  
+    if (!distance && tripType !== "rental") {
+      emptyFields.push("Distance (Calculate it)");
+    }  
     if (emptyFields.length > 0) {
       alert(`\n${emptyFields.join(", ")} fields are empty!!!`);
       return false; // Validation failed
     }
-
+  
     return true; // Validation succeeded
   };
 
@@ -97,28 +138,36 @@ const Booking_Page = ({ setLoading }) => {
     if (!validateForm()) {
       return; // Stop form submission if validation fails
     }
-
+    
+  
     setLoading(true); // Trigger loading spinner and blur effect
     setTimeout(() => {
-      const formData = {
-        vehicle,
-        tripType,
-        pickupLocation,
-        dropLocation,
-        pickupDate,
-        pickupTime,
-        returnDate,
-        rentalDuration,
-        distance,
-      };
+      // const formData = {
+      //   vehicle,
+      //   tripType,
+      //   pickupLocation,
+      //   dropLocation,
+      //   pickupDate,
+      //   pickupTime,
+      //   returnDate,
+      //   rentalDuration,
+      //   distance,
+      // };
 
-      console.log("Form Data:", formData);
+      // console.log("Form Data:", formData);
 
       setShowVehicles(true); // Trigger VehicleList rendering
       vehicleListRef.current.scrollIntoView({ behavior: "smooth" }); // Scroll to vehicle list
 
       setLoading(false); // Stop loading
     }, 1500); // Simulate loading time (adjust as necessary)
+  };
+
+  const handleTripTypeChange = (e) => {
+    setTripType(e.target.value);
+    setDistance(""); // Reset distance when trip type changes
+    setShowVehicles(false); // Hide vehicle list on trip type change
+  
   };
 
   return (
@@ -194,8 +243,7 @@ const Booking_Page = ({ setLoading }) => {
                     aria-labelledby="trip-type-radio-label"
                     name="trip-type-radio"
                     value={tripType}
-                    onChange={(e) => setTripType(e.target.value)}
-                    row
+                    onChange={handleTripTypeChange}                    row
                   >
                     <FormControlLabel
                       value="oneway"
@@ -245,8 +293,7 @@ const Booking_Page = ({ setLoading }) => {
                 <TempoTravellerFields
                   tripType={tripType}
                   setTripType={setTripType}
-                  localType={localType}
-                  setLocalType={setLocalType}
+                  
                   pickupDate={pickupDate}
                   setPickupDate={setPickupDate}
                   pickupTime={pickupTime}
@@ -259,6 +306,8 @@ const Booking_Page = ({ setLoading }) => {
                   setRentalDuration={setRentalDuration}
                   returnDate={returnDate}
                   setReturnDate={setReturnDate}
+                  distance={distance}
+                  setDistance={setDistance}
                 />
               )}
               {vehicle === "Bus" && (
@@ -274,6 +323,8 @@ const Booking_Page = ({ setLoading }) => {
                   setDropLocation={setDropLocation}
                   returnDate={returnDate}
                   setReturnDate={setReturnDate}
+                  distance={distance}
+                  setDistance={setDistance}
                 />
               )}
             </Box>
