@@ -17,7 +17,7 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import LogoutIcon from "@mui/icons-material/Logout";
 import "remixicon/fonts/remixicon.css";
 import { useAuth } from "../../AuthContext";
-
+import ProfileMenu from "./ProfileMenu";
 export const Navbar = ({ setLoading }) => {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const drawerRef = useRef(null);
@@ -27,6 +27,7 @@ export const Navbar = ({ setLoading }) => {
   const navigate = useNavigate();
   const { auth, setAuth } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const toggleNavbar = () => {
     if (mobileDrawerOpen) {
@@ -86,7 +87,7 @@ export const Navbar = ({ setLoading }) => {
         const additionalOffset = 100; // Extra space below the navbar
         const elementPosition = element.getBoundingClientRect().top + window.scrollY; // Calculate the element's position
         const offsetPosition = elementPosition - navbarHeight - additionalOffset; // Add extra offset
-  
+
         window.scrollTo({
           top: offsetPosition,
           behavior: "smooth", // Smooth scrolling
@@ -108,6 +109,11 @@ export const Navbar = ({ setLoading }) => {
     setAuth(null); // Clear auth state
     navigate("/"); // Redirect to the home page
     localStorage.removeItem("currentUser"); // Remove session data
+    handleClose(); // Close the menu
+  };
+
+  const handleProfileClick = () => {
+    setIsProfileOpen(true); // Open the profile dialog
     handleClose(); // Close the menu
   };
 
@@ -174,7 +180,7 @@ export const Navbar = ({ setLoading }) => {
                   open={Boolean(anchorEl)}
                   onClose={handleClose}
                 >
-                  <MenuItem onClick={handleClose}>
+                  <MenuItem onClick={handleProfileClick}>
                     <ListItemIcon>
                       <AccountCircle />
                     </ListItemIcon>
@@ -190,35 +196,35 @@ export const Navbar = ({ setLoading }) => {
               </div>
             ) : (
               <>
-                        <Link
-          to="/login?type=login"
-          onClick={(e) => {
-            e.preventDefault();
-            setLoading(true); // Show the loading spinner
-            setTimeout(() => {
-              setLoading(false); // Hide spinner after navigation
-              navigate("/login?type=login");
-            }, 1500); // Simulate a delay for loading
-          }}
-        >
-          <Button className="login-button" variant="outlined">
-            Login
-          </Button>
-        </Link>
+                <Link
+                  to="/login?type=login"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setLoading(true); // Show the loading spinner
+                    setTimeout(() => {
+                      setLoading(false); // Hide spinner after navigation
+                      navigate("/login?type=login");
+                    }, 1500); // Simulate a delay for loading
+                  }}
+                >
+                  <Button className="login-button" variant="outlined">
+                    Login
+                  </Button>
+                </Link>
 
-        <Link
-          to="/login?type=signup"
-          onClick={(e) => {
-            e.preventDefault();
-            setLoading(true);
-            setTimeout(() => {
-              setLoading(false);
-              navigate("/login?type=signup");
-            }, 1500);
-          }}
-        >
-          <button className="signup-button">Sign Up</button>
-        </Link>
+                <Link
+                  to="/login?type=signup"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setLoading(true);
+                    setTimeout(() => {
+                      setLoading(false);
+                      navigate("/login?type=signup");
+                    }, 1500);
+                  }}
+                >
+                  <button className="signup-button">Sign Up</button>
+                </Link>
               </>
             )}
           </div>
@@ -272,7 +278,8 @@ export const Navbar = ({ setLoading }) => {
                   {/* Merged Profile Icon and Username */}
                   <div
                     onClick={() => {
-                      console.log("Profile clicked"); // Add your desired profile action here
+                      setIsProfileOpen(true); // Open profile dialog in mobile view
+                      setMobileDrawerOpen(false); // Close the drawer
                     }}
                     style={{
                       display: "flex",
@@ -306,25 +313,26 @@ export const Navbar = ({ setLoading }) => {
                 <>
                   {/* Login and Sign-Up Buttons */}
                   <Link
-                  to="/login?type=login"
-                  onClick={() => setMobileDrawerOpen(false)}
-                >
-                  <Button className="login-button" variant="outlined">
-                    Login
-                  </Button>
-                </Link>
-                <Link
-                  to="/login?type=signup"
-                  onClick={() => setMobileDrawerOpen(false)}
-                >
-                  <button className="signup-button">Sign Up</button>
-                </Link>
+                    to="/login?type=login"
+                    onClick={() => setMobileDrawerOpen(false)}
+                  >
+                    <Button className="login-button" variant="outlined">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link
+                    to="/login?type=signup"
+                    onClick={() => setMobileDrawerOpen(false)}
+                  >
+                    <button className="signup-button">Sign Up</button>
+                  </Link>
                 </>
               )}
             </div>
           </div>
         )}
       </div>
+      <ProfileMenu open={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
     </nav>
   );
 };

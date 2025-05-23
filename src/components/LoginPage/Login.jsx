@@ -37,20 +37,20 @@ const Login = () => {
     const email = e.target.email.value;
     const password = e.target.password.value;
     const confirmPassword = e.target.confirmPassword.value;
-  
+
     // Validate email format
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
       alert("Invalid email format! Please enter a valid email.");
       return;
     }
-  
+
     // Check if passwords match
     if (password !== confirmPassword) {
       alert("Passwords don't match! Please try again.");
       return;
     }
-  
+
     try {
       // Fetch existing users from the server
       const response = await fetch(USER_ENDPOINT, {
@@ -59,27 +59,31 @@ const Login = () => {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (response.ok) {
         const users = await response.json(); // Parse the response as JSON
-  
+
         // Check if username or email already exists
         const usernameExists = users.some((user) => user.username === username);
         const emailExists = users.some((user) => user.email === email);
-  
+
         if (usernameExists) {
-          alert("The username is already taken. Please choose a different one.");
+          alert(
+            "The username is already taken. Please choose a different one."
+          );
           return;
         }
-  
+
         if (emailExists) {
-          alert("The email is already registered. Please use a different email.");
+          alert(
+            "The email is already registered. Please use a different email."
+          );
           return;
         }
-  
+
         // If no matches, proceed to create a new user
         const newUser = { username, email, password };
-  
+
         const signupResponse = await fetch(USER_ENDPOINT, {
           method: "POST",
           headers: {
@@ -87,7 +91,7 @@ const Login = () => {
           },
           body: JSON.stringify(newUser),
         });
-  
+
         if (signupResponse.ok) {
           alert("Signup successful! Welcome to the platform!");
           e.target.reset();
@@ -100,14 +104,16 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error during signup:", error);
-      alert("An error occurred while signing up! Please check your internet connection.");
+      alert(
+        "An error occurred while signing up! Please check your internet connection."
+      );
     }
   };
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     const username = e.target.username.value;
     const password = e.target.password.value;
-
+  
     try {
       const response = await fetch(USER_ENDPOINT, {
         method: "GET",
@@ -115,16 +121,20 @@ const Login = () => {
           "Content-Type": "application/json",
         },
       });
-
+  
       if (response.ok) {
         const users = await response.json(); // Fetch users from the server
         const existingUser = users.find(
           (user) => user.username === username && user.password === password
         );
-
+  
         if (existingUser) {
           alert("Login successful!");
-          setAuth({ username: existingUser.username }); // Save username in auth context
+          
+          // ✅ Store user ID in authentication state & localStorage
+          setAuth({ id: existingUser.id, username: existingUser.username });
+          localStorage.setItem("currentUserId", existingUser.id);
+  
           navigate("/"); // Redirect to the home page
         } else {
           alert("Invalid username or password!");

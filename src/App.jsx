@@ -25,7 +25,7 @@ const App = () => {
               left: 0,
               width: "100vw",
               height: "100vh",
-              backgroundColor: "rgba(0, 0, 0, 0.6)", // Dark background
+              backgroundColor: "  rgba(0, 0, 0, 0.6)", // Dark background
               backdropFilter: "blur(2px)", // Blur effect
               zIndex: 9998, // Below the spinner
             }}

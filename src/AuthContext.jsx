@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (auth) {
       localStorage.setItem("currentUser", JSON.stringify(auth));
+      
     } else {
       localStorage.removeItem("currentUser"); // Clear storage on logout
     }

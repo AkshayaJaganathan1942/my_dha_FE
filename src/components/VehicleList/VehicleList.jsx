@@ -26,6 +26,7 @@ import {
   RT_ENDPOINT,
   RENTAL_ENDPOINT,
   VEHICLETYPE_ENDPOINT,
+  USER_ENDPOINT,
 } from "../../Api";
 
 // Image mapping
@@ -64,11 +65,29 @@ const VehicleList = ({
   const selectedKM = rentalDuration
     ? rentalDuration.match(/\d+(?= km)/)?.[0]
     : "0";
+  const [userData, setUserData] = useState(null); // ✅ Define state for userData
   useEffect(() => {
+    const fetchUserData = async () => {
+      if (!auth?.id) return; // Ensure user is logged in
+
+      try {
+        const response = await fetch(`${USER_ENDPOINT}${auth.id}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch user trips");
+        }
+        const data = await response.json();
+        console.log("Fetched User Data:", data); // Log fetched user trips
+        setUserData(data.trips); // Store user details
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    console.log("Auth ID:", auth?.id); // ✅ Check if auth.id exists before fetching
+
     const fetchVehicles = async () => {
       const response = await fetch(VEHICLE_ENDPOINT);
       const data = await response.json();
-      console.log("Fetched Vehicles:", data); // Log fetched vehicles
+      console.log("Fetched Vehicles:", data);
       setVehicles(data);
     };
 
@@ -76,16 +95,17 @@ const VehicleList = ({
       try {
         const response = await fetch(VEHICLETYPE_ENDPOINT);
         const data = await response.json();
-        console.log("Fetched Vehicle Types:", data); // Log fetched vehicle types
+        console.log("Fetched Vehicle Types:", data);
         setVehicleTypes(data);
       } catch (error) {
         console.error("Error fetching vehicle types:", error);
       }
     };
 
+    fetchUserData(); // ✅ Fetch user data when component mounts
     fetchVehicles();
     fetchVehicleTypes();
-  }, []);
+  }, [auth?.id]); // ✅ Re-fetch user data when user changes
 
   const filteredVehicles = vehicles.filter((vehicle) => {
     const vehicleType = vehicleTypes.find(
@@ -144,24 +164,38 @@ const VehicleList = ({
     setSelectedVehicle({ ...vehicle, vehicleTypeId }); // Store vehicle along with its type ID
     setDialogOpen(true);
   };
-
   const handleConfirmClick = () => {
-    if (!auth) {
-      setOpenDialog(true); // 🔹 Show login prompt if user isn’t logged in
+    console.log("Auth ID:", auth?.id);
+    console.log("Auth State:", auth);
+    console.log("Fetching user data from:", `${USER_ENDPOINT}${auth?.id}`);
+
+    if (!auth?.id) {
+      // Check for auth.id directly
+      setOpenDialog(true); // Show login prompt if auth.id is missing
       return;
     }
 
-    // 🔹 Proceed with booking
     let totalFare = 0;
     if (tripType === "roundtrip") {
-      totalFare = (distance * 2 * parseFloat(selectedVehicle?.price_per_km)).toFixed(2);
+      totalFare = (
+        distance *
+        2 *
+        parseFloat(selectedVehicle?.price_per_km)
+      ).toFixed(2);
     } else if (tripType === "rental") {
       const selectedKM = parseInt(rentalDuration.match(/\d+(?= km)/)[0], 10);
-      totalFare = (selectedKM * parseFloat(selectedVehicle?.price_per_km) + 500).toFixed(2);
-    } else {totalFare = (distance * parseFloat(selectedVehicle?.price_per_km)).toFixed(2);
+      totalFare = (
+        selectedKM * parseFloat(selectedVehicle?.price_per_km) +
+        500
+      ).toFixed(2);
+    } else {
+      totalFare = (
+        distance * parseFloat(selectedVehicle?.price_per_km)
+      ).toFixed(2);
     }
 
     const bookingData = {
+      username: auth?.id, // Now it's safer to access auth.id
       vehicleType: selectedVehicle.vehicleTypeId,
       pickupLocation,
       pickupDate,
@@ -170,7 +204,6 @@ const VehicleList = ({
       distance,
       totalFare,
     };
-
     if (tripType === "roundtrip") bookingData.returnDate = returnDate;
     if (tripType === "rental") bookingData.rentalDuration = selectedKM;
     else {
@@ -179,9 +212,8 @@ const VehicleList = ({
     }
 
     postBookingData(bookingData, tripType);
-    setDialogOpen(false); // 🔹 Close dialog after booking
+    setDialogOpen(false);
   };
-
 
   return (
     <section className="available-vehicles-section">
@@ -243,6 +275,12 @@ const VehicleList = ({
         onClose={() => setDialogOpen(false)}
         aria-labelledby="vehicle-details-dialog-title"
         aria-describedby="vehicle-details-dialog-description"
+        BackdropProps={{
+          style: {
+            backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black
+            backdropFilter: "blur(3px)",
+          },
+        }}
       >
         <DialogTitle id="vehicle-details-dialog-title">
           <center>
@@ -263,7 +301,8 @@ const VehicleList = ({
             <b>Vehicle Details:</b>
           </Typography>
           <Typography>
-            Name: {selectedVehicle?.name} ({selectedVehicle?.description})
+            Vehicle: {selectedVehicle?.name}
+            {/*  ({selectedVehicle?.description}) */}
           </Typography>
           <Typography>
             Capacity: {selectedVehicle?.capacity} passengers
@@ -332,64 +371,8 @@ const VehicleList = ({
             </>
           )}
         </DialogContent>
-        <DialogActions>
-         
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleConfirmClick}
-              
 
-            //   let totalFare = 0;
-
-            //   if (tripType === "roundtrip") {
-            //     totalFare = (
-            //       distance *
-            //       2 *
-            //       parseFloat(selectedVehicle?.price_per_km)
-            //     ).toFixed(2);
-            //   } else if (tripType === "rental") {
-            //     const selectedKM = rentalDuration.match(/\d+(?= km)/)[0]; // Extract KM value
-            //     totalFare = (
-            //       selectedKM * parseFloat(selectedVehicle?.price_per_km) +
-            //       500
-            //     ).toFixed(2);
-            //   } else {
-            //     totalFare = (
-            //       distance * parseFloat(selectedVehicle?.price_per_km)
-            //     ).toFixed(2);
-            //   }
-
-            //   const bookingData = {
-            //     vehicleType: selectedVehicle.vehicleTypeId,
-            //     pickupLocation,
-            //     pickupDate,
-            //     pickupTime,
-            //     tripType,
-            //     totalFare, // Send totalFare instead of total price
-            //   };
-
-            //   if (tripType === "roundtrip") {
-            //     bookingData.returnDate = returnDate;
-            //   }
-
-            //   if (tripType === "rental") {
-            //     bookingData.rentalDuration = selectedKM; // Send only the KM value (30, 40, 50, or 60)
-            //     bookingData.totalFare = (
-            //       selectedKM * parseFloat(selectedVehicle?.price_per_km) +
-            //       500
-            //     ).toFixed(2); // Add ₹500 driver beta charge
-            //   } else {
-            //     bookingData.dropLocation = dropLocation;
-            //     bookingData.distance = distance;
-            //   }
-
-            //   postBookingData(bookingData, tripType);
-            //   setDialogOpen(false);
-            // }}
-          >
-            Confirm
-          </Button>
+        <DialogActions sx={{ justifyContent: "space-between" }}>
           <Button
             onClick={() => setDialogOpen(false)}
             variant="outlined"
@@ -397,15 +380,44 @@ const VehicleList = ({
           >
             Cancel
           </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleConfirmClick}
+          >
+            Confirm
+          </Button>
         </DialogActions>
+        <Typography
+          variant="caption"
+          color="error"
+          sx={{ mt: 2, display: "block", textAlign: "center" }}
+        >
+          * You must be logged in to proceed with the booking confirmation.
+        </Typography>
+        <br></br>
       </Dialog>
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>You should login before booking a vehicle!</DialogTitle>
-        <DialogActions>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        BackdropProps={{
+          style: {
+            backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black
+            // If you want to try backdrop-filter (browser support varies):
+            backdropFilter: "blur(3px)",
+          },
+        }}
+      >
+        <DialogTitle>Login/SignUp to book a vehicle!</DialogTitle>
+        <DialogActions sx={{ justifyContent: "space-between" }}>
           <Button onClick={() => setOpenDialog(false)} color="secondary">
             Cancel
           </Button>
-          <Button onClick={() => navigate("/login")} color="primary">
+          <Button
+            variant="contained"
+            onClick={() => navigate("/login")}
+            color="primary"
+          >
             Login
           </Button>
         </DialogActions>

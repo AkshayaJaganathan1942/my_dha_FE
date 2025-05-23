@@ -67,69 +67,43 @@ const Booking_Page = ({ setLoading }) => {
     setVehicle(selectedVehicle);
     setShowVehicles(false);
     handleDialogClose();
-  
+
     if (selectedVehicle === "Tempo Traveller" || selectedVehicle === "Bus") {
       setDistance(""); // Reset distance ONLY for these vehicle types
     } else {
       setDistance((prevDistance) => prevDistance || ""); // Preserve distance when switching between Cars
     }
-  
   };
-  // const validateForm = () => {
-  //   let emptyFields = [];
-  //   let invalidFields = [];
-
-  //   if (!vehicle) emptyFields.push("Vehicle");
-  //   if (!tripType) emptyFields.push("Trip Type");
-  //   if (!pickupLocation?.trim()) emptyFields.push("Pickup Location");
-  //   if (!dropLocation?.trim()) emptyFields.push("Drop Location");
-  //   if (!pickupDate) emptyFields.push("Pickup Date");
-  //   if (!pickupTime) emptyFields.push("Pickup Time");
-  //   if (!returnDate) emptyFields.push("Return Date");
-  //   if (tripType === "Round trip" && !returnDate)
-  //     emptyFields.push("Return Date");
-  //   if (tripType === "Hourly Rental" && !rentalDuration) {
-  //     emptyFields.push("Rental Duration");
-  //   }
-  //   if (!distance) emptyFields.push("Distance (Calculate it)");
-
-  //   // Show alert for empty or invalid fields
-  //   if (emptyFields.length > 0) {
-  //     alert(`\n${emptyFields.join(", ")} fields are empty!!!`);
-  //     return false; // Validation failed
-  //   }
-
-  //   return true; // Validation succeeded
-  // };
 
   const validateForm = () => {
     let emptyFields = [];
-  
+
     if (!vehicle) emptyFields.push("Vehicle");
     if (!tripType) emptyFields.push("Trip Type");
     if (!pickupLocation?.trim()) emptyFields.push("Pickup Location");
-    if (!dropLocation?.trim() && tripType !== "rental") emptyFields.push("Drop Location");
+    if (!dropLocation?.trim() && tripType !== "rental")
+      emptyFields.push("Drop Location");
     if (!pickupDate) emptyFields.push("Pickup Date");
     if (!pickupTime) emptyFields.push("Pickup Time");
-  
+
     // Only validate returnDate if tripType is roundtrip
     if (tripType === "roundtrip" && !returnDate) {
       emptyFields.push("Return Date");
     }
-  
+
     // Only validate rentalDuration if tripType is rental
     if (tripType === "rental" && !rentalDuration) {
       emptyFields.push("Rental Duration");
     }
-  
+
     if (!distance && tripType !== "rental") {
       emptyFields.push("Distance (Calculate it)");
-    }  
+    }
     if (emptyFields.length > 0) {
       alert(`\n${emptyFields.join(", ")} fields are empty!!!`);
       return false; // Validation failed
     }
-  
+
     return true; // Validation succeeded
   };
 
@@ -138,8 +112,7 @@ const Booking_Page = ({ setLoading }) => {
     if (!validateForm()) {
       return; // Stop form submission if validation fails
     }
-    
-  
+
     setLoading(true); // Trigger loading spinner and blur effect
     setTimeout(() => {
       // const formData = {
@@ -167,7 +140,6 @@ const Booking_Page = ({ setLoading }) => {
     setTripType(e.target.value);
     setDistance(""); // Reset distance when trip type changes
     setShowVehicles(false); // Hide vehicle list on trip type change
-  
   };
 
   return (
@@ -243,7 +215,8 @@ const Booking_Page = ({ setLoading }) => {
                     aria-labelledby="trip-type-radio-label"
                     name="trip-type-radio"
                     value={tripType}
-                    onChange={handleTripTypeChange}                    row
+                    onChange={handleTripTypeChange}
+                    row
                   >
                     <FormControlLabel
                       value="oneway"
@@ -293,7 +266,6 @@ const Booking_Page = ({ setLoading }) => {
                 <TempoTravellerFields
                   tripType={tripType}
                   setTripType={setTripType}
-                  
                   pickupDate={pickupDate}
                   setPickupDate={setPickupDate}
                   pickupTime={pickupTime}
@@ -357,7 +329,11 @@ const Booking_Page = ({ setLoading }) => {
               >
                 SEARCH CABS
               </button>
+             
             </Box>
+            <Typography variant="caption" color="error" sx={{ mt: 2, display: 'block', textAlign: 'center' }}>
+            * You must be logged in to proceed with the booking confirmation.
+          </Typography>
           </Paper>
         </form>
         <div ref={vehicleListRef}>
