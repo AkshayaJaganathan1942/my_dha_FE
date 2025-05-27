@@ -4,13 +4,89 @@ import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 import { USER_ENDPOINT } from "../../Api";
+import ForgotPassword from "./ForgotPassword.jsx";
 
-const Login = () => {
+
+const Login = ({ setLoading }) => {
   const { setAuth } = useAuth();
   const wrapperRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const type = searchParams.get("type") || "login";
   const navigate = useNavigate();
+  const [otpSent, setOtpSent] = useState(false);
+  const [enteredOtp, setEnteredOtp] = useState("");
+  const [email, setEmail] = useState("");
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+
+  const sendOtp = async () => {
+    if (!email) {
+      alert("⚠️ Please enter your email before requesting an OTP!");
+      return;
+    }
+
+    // Validate that email contains @gmail.com
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+    if (!emailRegex.test(email)) {
+      alert(
+        "❌ Invalid email format! Please enter a valid Gmail address (e.g., example@gmail.com)."
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/send-otp/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      alert(data.message);
+
+      if (data.message === "OTP sent successfully") {
+        setOtpSent(true);
+      }
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      alert("⚠️ Something went wrong! Please try again.");
+    } finally {
+      setLoading(false); // Hide loading spinner
+    }
+  };
+  const verifyOtp = async () => {
+    if (!enteredOtp) {
+      alert("⚠️ Please enter OTP before verifying.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch("http://127.0.0.1:8000/verify-otp/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code: enteredOtp }),
+      });
+      const data = await response.json();
+
+      if (data.message === "OTP verified successfully") {
+        alert("✅ OTP Verified Successfully! You can proceed with Signup.");
+        setIsOtpVerified(true); // Set OTP verified state
+        setOtpSent(false);
+        setEnteredOtp("");
+      } else {
+        alert("❌ Invalid OTP! Please try again.");
+        setIsOtpVerified(false); // Reset verification status
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      // alert(
+      //   "⚠️ Something went wrong while verifying OTP! Please try again later."
+      // );
+    } finally {
+      setLoading(false); // Hide loading spinner
+    }
+  };
 
   useEffect(() => {
     if (type === "login") {
@@ -31,19 +107,19 @@ const Login = () => {
     wrapperRef.current.classList.add("animated-signup"); // Switch to login animation
     wrapperRef.current.classList.remove("animated-signin");
   };
+
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isOtpVerified) {
+      alert("⚠️ You must verify your email before signing up!");
+      return;
+    }
+
     const username = e.target.username.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
     const confirmPassword = e.target.confirmPassword.value;
-
-    // Validate email format
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-      alert("Invalid email format! Please enter a valid email.");
-      return;
-    }
 
     // Check if passwords match
     if (password !== confirmPassword) {
@@ -113,7 +189,7 @@ const Login = () => {
     e.preventDefault();
     const username = e.target.username.value;
     const password = e.target.password.value;
-  
+
     try {
       const response = await fetch(USER_ENDPOINT, {
         method: "GET",
@@ -121,20 +197,20 @@ const Login = () => {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (response.ok) {
         const users = await response.json(); // Fetch users from the server
         const existingUser = users.find(
           (user) => user.username === username && user.password === password
         );
-  
+
         if (existingUser) {
           alert("Login successful!");
-          
+
           // ✅ Store user ID in authentication state & localStorage
           setAuth({ id: existingUser.id, username: existingUser.username });
           localStorage.setItem("currentUserId", existingUser.id);
-  
+
           navigate("/"); // Redirect to the home page
         } else {
           alert("Invalid username or password!");
@@ -159,9 +235,38 @@ const Login = () => {
             <label>Username</label>
           </div>
           <div className="form-group">
-            <input type="email" name="email" required />
+            <input
+              type="email"
+              name="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
             <i className="fas fa-at"></i>
             <label>Email</label>
+          </div>
+          <div>
+            <button type="button" onClick={sendOtp} className="btn">
+              Send OTP
+            </button>
+
+            {otpSent && (
+              <div className="form-group">
+                <input
+                  type="text"
+                  name="otp"
+                  required
+                  value={enteredOtp}
+                  onChange={(e) => setEnteredOtp(e.target.value)}
+                  placeholder="Enter OTP"
+                />
+                <i className="fas fa-key"></i>
+                <label>Enter OTP</label>
+                <button type="button" onClick={verifyOtp} className="btn">
+                  Verify OTP
+                </button>
+              </div>
+            )}
           </div>
           <div className="form-group">
             <input type="password" name="password" required />
@@ -187,6 +292,9 @@ const Login = () => {
         </form>
       </div>
       <div className="form-container sign-in">
+        {!showForgotPassword ? (
+        <>
+
         <form onSubmit={handleLoginSubmit}>
           <h2>Login</h2>
           <div className="form-group">
@@ -200,7 +308,8 @@ const Login = () => {
             <label>Password</label>
           </div>
           <div className="forgot-pass">
-            <a href="#">Forgot Password?</a>
+            <a href="#" onClick={() => setShowForgotPassword(true)}
+>Forgot Password?</a>
           </div>
           <button type="submit" className="btn">
             Login
@@ -214,6 +323,12 @@ const Login = () => {
             </p>
           </div>
         </form>
+         </>
+      ) : (
+        <ForgotPassword setLoading={setLoading} onClose={() => setShowForgotPassword(false)} />
+      )}
+
+
       </div>
     </div>
   );

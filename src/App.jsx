@@ -77,7 +77,7 @@ const App = () => {
               </div>
           }
         />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login"  element={<Login setLoading={setLoading} />} />
         {/* <Route path="/signup" element={<Signup />} /> */}
       </Routes>
     </>

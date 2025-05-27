@@ -191,3 +191,66 @@ body {
     z-index: 1;
   }
 }
+
+.otp-container {
+  display: flex;
+  align-items: center; /* Align vertically */
+  gap: 10px; /* Add spacing between input and button */
+}
+
+.otp-container input {
+  flex: 1; /* Make input take remaining space */
+  padding: 8px;
+}
+
+.otp-container button {
+  padding: 8px 12px;
+}
+
+.forgot-password-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.forgot-password-container div {
+  margin-bottom: 15px; /* Add spacing between divs */
+}
+
+input {
+  width: 100%; /* Make input field take full width */
+  padding: 10px; /* Increase padding for better UX */
+  font-size: 16px; /* Make text more readable */
+}
+
+.btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.cancel-btn {
+  background-color: red;
+  color: white;
+}
+
+.form-group {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  gap: 15px; /* Add spacing between elements */
+}
+
+input {
+  flex: 1; /* Let input take available space */
+  padding: 10px;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px;
+  font-size: 16px;
+}
+
+i {
+  font-size: 18px;
+}
