@@ -101,45 +101,52 @@ const ForgotPassword = ({ setLoading, onClose }) => {
 
   // ✅ Step 4: Reset Password
   const resetPassword = async () => {
-    if (!newPassword) {
-      alert("⚠️ Please enter a new password.");
+  if (!newPassword) {
+    alert("⚠️ Please enter a new password.");
+    return;
+  }
+
+  if (!userId) {
+    alert("⚠️ User ID is missing! Please check your flow.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    // Fetch existing user data first
+    const response = await fetch(`${USER_ENDPOINT}${userId}/`);
+    const existingUser = await response.json();
+
+    if (!existingUser) {
+      alert("❌ User not found! Try again.");
       return;
     }
 
-    if (!userId) {
-      alert("⚠️ User ID is missing! Please check your flow.");
-      return;
+    // Update password while preserving other user details
+    const updatedUser = { ...existingUser, password: newPassword };
+
+    const updateResponse = await fetch(`${USER_ENDPOINT}${userId}/`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedUser), // Send full user object
+    });
+
+    const data = await updateResponse.json();
+
+    if (data.message === "Password updated successfully") {
+      alert("✅ Password updated! You can now log in with your new password.");
+      onClose();
+    } else {
+      alert("❌ Password update failed! Try again.");
     }
-
-    try {
-      setLoading(true);
-
-      // ✅ Ensure the correct URL structure with a trailing slash
-      const apiUrl = `${USER_ENDPOINT}/${userId}/`;
-
-      const response = await fetch(apiUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: newPassword }),
-      });
-
-      const data = await response.json();
-
-      if (data.message === "Password updated successfully") {
-        alert(
-          "✅ Password updated! You can now log in with your new password."
-        );
-        onClose();
-      } else {
-        alert("❌ Password update failed! Try again.");
-      }
-    } catch (error) {
-      console.error("Error updating password:", error);
-      alert("⚠️ Something went wrong! Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    console.error("Error updating password:", error);
+    alert("⚠️ Something went wrong! Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="forgot-password-container">

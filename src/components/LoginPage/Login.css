@@ -219,38 +219,21 @@ body {
 
 input {
   width: 100%; /* Make input field take full width */
-  padding: 10px; /* Increase padding for better UX */
-  font-size: 16px; /* Make text more readable */
+  border: 1px solid var(--labelColor);
+  border-radius: 0.5rem;
+  height: 3rem;
+  padding: 0 1rem;
+  font-size: 1rem;
+  color: var(--labelColor);
 }
 
 .btn {
   width: 100%;
   padding: 10px;
-  font-size: 16px;
+  font-size: 13px;
 }
 
 .cancel-btn {
   background-color: red;
   color: white;
-}
-
-.form-group {
-  display: flex;
-  align-items: center; /* Align items vertically */
-  gap: 15px; /* Add spacing between elements */
-}
-
-input {
-  flex: 1; /* Let input take available space */
-  padding: 10px;
-  font-size: 16px;
-}
-
-button {
-  padding: 10px;
-  font-size: 16px;
-}
-
-i {
-  font-size: 18px;
 }

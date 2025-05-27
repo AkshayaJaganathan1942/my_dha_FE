@@ -6,7 +6,6 @@ import { useAuth } from "../../AuthContext";
 import { USER_ENDPOINT } from "../../Api";
 import ForgotPassword from "./ForgotPassword.jsx";
 
-
 const Login = ({ setLoading }) => {
   const { setAuth } = useAuth();
   const wrapperRef = useRef(null);
@@ -24,7 +23,6 @@ const Login = ({ setLoading }) => {
       alert("⚠️ Please enter your email before requesting an OTP!");
       return;
     }
-
     // Validate that email contains @gmail.com
     const emailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     if (!emailRegex.test(email)) {
@@ -35,6 +33,7 @@ const Login = ({ setLoading }) => {
     }
 
     try {
+      setLoading(true);
       const response = await fetch("http://127.0.0.1:8000/send-otp/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -169,7 +168,7 @@ const Login = ({ setLoading }) => {
         });
 
         if (signupResponse.ok) {
-          alert("Signup successful! Welcome to the platform!");
+          alert("Signup successful! Welcome to the platform! Login to Confirm your Bokkings");
           e.target.reset();
           handleSignInClick(); // Switch to the login view
         } else {
@@ -293,42 +292,47 @@ const Login = ({ setLoading }) => {
       </div>
       <div className="form-container sign-in">
         {!showForgotPassword ? (
-        <>
-
-        <form onSubmit={handleLoginSubmit}>
-          <h2>Login</h2>
-          <div className="form-group">
-            <input type="text" name="username" required />
-            <i className="fas fa-user"></i>
-            <label>Username</label>
-          </div>
-          <div className="form-group">
-            <input type="password" name="password" required />
-            <i className="fas fa-lock"></i>
-            <label>Password</label>
-          </div>
-          <div className="forgot-pass">
-            <a href="#" onClick={() => setShowForgotPassword(true)}
->Forgot Password?</a>
-          </div>
-          <button type="submit" className="btn">
-            Login
-          </button>
-          <div className="link">
-            <p>
-              Don't have an account?{" "}
-              <a href="#" className="signup-link" onClick={handleSignUpClick}>
-                Sign Up
-              </a>
-            </p>
-          </div>
-        </form>
-         </>
-      ) : (
-        <ForgotPassword setLoading={setLoading} onClose={() => setShowForgotPassword(false)} />
-      )}
-
-
+          <>
+            <form onSubmit={handleLoginSubmit}>
+              <h2>Login</h2>
+              <div className="form-group">
+                <input type="text" name="username" required />
+                <i className="fas fa-user"></i>
+                <label>Username</label>
+              </div>
+              <div className="form-group">
+                <input type="password" name="password" required />
+                <i className="fas fa-lock"></i>
+                <label>Password</label>
+              </div>
+              <div className="forgot-pass">
+                <a href="#" onClick={() => setShowForgotPassword(true)}>
+                  Forgot Password?
+                </a>
+              </div>
+              <button type="submit" className="btn">
+                Login
+              </button>
+              <div className="link">
+                <p>
+                  Don't have an account?{" "}
+                  <a
+                    href="#"
+                    className="signup-link"
+                    onClick={handleSignUpClick}
+                  >
+                    Sign Up
+                  </a>
+                </p>
+              </div>
+            </form>
+          </>
+        ) : (
+          <ForgotPassword
+            setLoading={setLoading}
+            onClose={() => setShowForgotPassword(false)}
+          />
+        )}
       </div>
     </div>
   );
