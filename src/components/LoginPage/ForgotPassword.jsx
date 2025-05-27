@@ -134,11 +134,12 @@ const ForgotPassword = ({ setLoading, onClose }) => {
 
     const data = await updateResponse.json();
 
-    if (data.message === "Password updated successfully") {
+    if (data && data.id) {
       alert("✅ Password updated! You can now log in with your new password.");
       onClose();
     } else {
       alert("❌ Password update failed! Try again.");
+      console.log("Response from API:", data);
     }
   } catch (error) {
     console.error("Error updating password:", error);
