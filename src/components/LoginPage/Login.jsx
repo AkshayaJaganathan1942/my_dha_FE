@@ -258,9 +258,7 @@ const Login = ({ setLoading }) => {
                   value={enteredOtp}
                   onChange={(e) => setEnteredOtp(e.target.value)}
                   placeholder="Enter OTP"
-                />
-                <i className="fas fa-key"></i>
-                <label>Enter OTP</label>
+                /><br></br>
                 <button type="button" onClick={verifyOtp} className="btn">
                   Verify OTP
                 </button>
